@@ -1,27 +1,30 @@
-<!DOCTYPE html><html><head><meta charset='utf-8'>
-<title>Road To Top 15 V5</title>
-<style>
-body{font-family:Arial;margin:20px;background:#f5f5f5}
-table{border-collapse:collapse;width:100%;background:white}
-th,td{border:1px solid #ddd;padding:6px}
-input{padding:8px;width:300px;margin:10px 0}
-</style></head><body>
-<h1>Road To Top 15 V5 - SL Hommes</h1>
-<input id='q' placeholder='Recherche athlète'>
-<table id='tbl'><thead><tr>
-<th>Nom</th><th>Nation</th><th>Top100</th><th>Top50</th><th>Top30</th><th>Top15</th><th>Top10</th><th>Top5</th><th>Top3</th><th>N°1</th>
-</tr></thead><tbody></tbody></table>
+<!DOCTYPE html><html><head>
+<meta charset="utf-8">
+<title>Test Trajectoires SL Hommes</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head><body>
+<h2>SL Hommes - Test trajectoires</h2>
+<canvas id="c"></canvas>
 <script>
-const data=[{"Name": "HIRSCHER Marcel", "Nation": "NED", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 1, "Top10": 1, "Top5": 1, "Top3": 1, "Top1": 2}, {"Name": "PINHEIRO BRAATHEN Lucas", "Nation": "BRA", "Top100": 3, "Top50": 4, "Top30": 4, "Top15": 4, "Top10": 7, "Top5": 7, "Top3": 7, "Top1": 7}, {"Name": "RAICH Benjamin", "Nation": "AUT", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 2, "Top10": null, "Top5": null, "Top3": null, "Top1": null}, {"Name": "KRISTOFFERSEN Henrik", "Nation": "NOR", "Top100": 1, "Top50": 1, "Top30": 2, "Top15": 3, "Top10": 3, "Top5": 3, "Top3": 3, "Top1": 5}, {"Name": "MATT Mario", "Nation": "AUT", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 1, "Top10": 1, "Top5": 2, "Top3": null, "Top1": null}, {"Name": "NOEL Clement", "Nation": "FRA", "Top100": 4, "Top50": 5, "Top30": 5, "Top15": 5, "Top10": 6, "Top5": 6, "Top3": 6, "Top1": 7}, {"Name": "DOPFER Fritz", "Nation": "GER", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 1, "Top10": 1, "Top5": 4, "Top3": 4, "Top1": null}, {"Name": "SCHWARZ Marco", "Nation": "AUT", "Top100": 4, "Top50": 4, "Top30": 5, "Top15": 5, "Top10": 5, "Top5": 10, "Top3": 10, "Top1": 10}, {"Name": "MCGRATH Atle Lie", "Nation": "NOR", "Top100": 4, "Top50": 6, "Top30": 6, "Top15": 6, "Top10": 6, "Top5": 6, "Top3": 6, "Top1": 6}, {"Name": "VINATZER Alex", "Nation": "ITA", "Top100": 4, "Top50": 4, "Top30": 4, "Top15": 6, "Top10": null, "Top5": null, "Top3": null, "Top1": null}, {"Name": "MOELGG Manfred", "Nation": "ITA", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 2, "Top10": 2, "Top5": 6, "Top3": null, "Top1": null}, {"Name": "MYHRER Andre", "Nation": "SWE", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 1, "Top10": 1, "Top5": 1, "Top3": 1, "Top1": 1}, {"Name": "BYGGMARK Jens", "Nation": "SWE", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 1, "Top10": 1, "Top5": null, "Top3": null, "Top1": null}, {"Name": "LIGETY Ted", "Nation": "USA", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 1, "Top10": null, "Top5": null, "Top3": null, "Top1": null}, {"Name": "PINTURAULT Alexis", "Nation": "FRA", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 2, "Top10": 2, "Top5": 8, "Top3": null, "Top1": null}, {"Name": "KOSTELIC Ivica", "Nation": "CRO", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 1, "Top10": 1, "Top5": 1, "Top3": 1, "Top1": null}, {"Name": "HALLBERG Eduard", "Nation": "FIN", "Top100": 5, "Top50": 5, "Top30": 7, "Top15": 7, "Top10": null, "Top5": null, "Top3": null, "Top1": null}, {"Name": "GRANGE Jean-Baptiste", "Nation": "FRA", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 3, "Top10": 3, "Top5": null, "Top3": null, "Top1": null}, {"Name": "MEILLARD Loic", "Nation": "SUI", "Top100": 4, "Top50": 6, "Top30": 7, "Top15": 8, "Top10": 10, "Top5": 14, "Top3": 14, "Top1": 14}, {"Name": "NEUREUTHER Felix", "Nation": "GER", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 1, "Top10": 1, "Top5": 2, "Top3": 2, "Top1": 4}, {"Name": "YULE Daniel", "Nation": "SUI", "Top100": 2, "Top50": 3, "Top30": 4, "Top15": 5, "Top10": 6, "Top5": 7, "Top3": 9, "Top1": 9}, {"Name": "PRANGER Manfred", "Nation": "AUT", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 1, "Top10": 1, "Top5": null, "Top3": null, "Top1": null}, {"Name": "FOSS-SOLEVAAG Sebastian", "Nation": "NOR", "Top100": 2, "Top50": 3, "Top30": 3, "Top15": 4, "Top10": 7, "Top5": 10, "Top3": 10, "Top1": 10}, {"Name": "HAUGAN Timon", "Nation": "NOR", "Top100": 7, "Top50": 9, "Top30": 9, "Top15": 9, "Top10": 14, "Top5": 14, "Top3": 14, "Top1": 14}, {"Name": "MATT Michael", "Nation": "AUT", "Top100": 3, "Top50": 5, "Top30": 5, "Top15": 6, "Top10": 6, "Top5": 6, "Top3": null, "Top1": null}, {"Name": "HARGIN Mattias", "Nation": "SWE", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 1, "Top10": 1, "Top5": 3, "Top3": null, "Top1": null}, {"Name": "PERTL Adrian", "Nation": "AUT", "Top100": 6, "Top50": 9, "Top30": 9, "Top15": 9, "Top10": null, "Top5": null, "Top3": null, "Top1": null}, {"Name": "KOLEGA Samuel", "Nation": "CRO", "Top100": 6, "Top50": 7, "Top30": 9, "Top15": 9, "Top10": null, "Top5": null, "Top3": null, "Top1": null}, {"Name": "FELLER Manuel", "Nation": "AUT", "Top100": 2, "Top50": 2, "Top30": 3, "Top15": 6, "Top10": 8, "Top5": 9, "Top3": 10, "Top1": 10}, {"Name": "AERNI Luca", "Nation": "SUI", "Top100": 2, "Top50": 2, "Top30": 3, "Top15": 7, "Top10": null, "Top5": null, "Top3": null, "Top1": null}, {"Name": "NEF Tanguy", "Nation": "SUI", "Top100": 7, "Top50": 7, "Top30": 8, "Top15": 10, "Top10": null, "Top5": null, "Top3": null, "Top1": null}, {"Name": "LARSSON Markus", "Nation": "SWE", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 2, "Top10": 4, "Top5": null, "Top3": null, "Top1": null}, {"Name": "ZENHAEUSERN Ramon", "Nation": "SUI", "Top100": 1, "Top50": 4, "Top30": 5, "Top15": 7, "Top10": 7, "Top5": 12, "Top3": 12, "Top1": 12}, {"Name": "GROSS Stefano", "Nation": "ITA", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 1, "Top10": 1, "Top5": 1, "Top3": null, "Top1": null}, {"Name": "RAZZOLI Giuliano", "Nation": "ITA", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 1, "Top10": 4, "Top5": null, "Top3": null, "Top1": null}, {"Name": "MUFFAT-JEANDET Victor", "Nation": "FRA", "Top100": 1, "Top50": 1, "Top30": 4, "Top15": 4, "Top10": null, "Top5": null, "Top3": null, "Top1": null}, {"Name": "HERBST Reinfried", "Nation": "AUT", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 2, "Top10": null, "Top5": null, "Top3": null, "Top1": null}, {"Name": "DEVILLE Cristian", "Nation": "ITA", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 1, "Top10": 1, "Top5": 1, "Top3": null, "Top1": null}, {"Name": "MISSILLIER Steve", "Nation": "FRA", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 1, "Top10": null, "Top5": null, "Top3": null, "Top1": null}, {"Name": "RASSAT Paco", "Nation": "FRA", "Top100": 8, "Top50": 11, "Top30": 11, "Top15": 12, "Top10": 12, "Top5": 12, "Top3": 12, "Top1": 12}, {"Name": "POPOV Albert", "Nation": "BUL", "Top100": 2, "Top50": 6, "Top30": 6, "Top15": 12, "Top10": null, "Top5": null, "Top3": null, "Top1": null}, {"Name": "GSTREIN Fabio", "Nation": "AUT", "Top100": 6, "Top50": 7, "Top30": 7, "Top15": 12, "Top10": null, "Top5": null, "Top3": null, "Top1": null}, {"Name": "STRASSER Linus", "Nation": "GER", "Top100": 3, "Top50": 4, "Top30": 4, "Top15": 9, "Top10": 10, "Top5": 13, "Top3": 13, "Top1": 13}, {"Name": "LIZEROUX Julien", "Nation": "FRA", "Top100": 1, "Top50": 3, "Top30": 4, "Top15": 4, "Top10": 5, "Top5": null, "Top3": null, "Top1": null}, {"Name": "MARCHANT Armand", "Nation": "BEL", "Top100": 7, "Top50": 7, "Top30": 12, "Top15": 13, "Top10": 13, "Top5": null, "Top3": null, "Top1": null}, {"Name": "HIRSCHBUEHL Christian", "Nation": "AUT", "Top100": 4, "Top50": 6, "Top30": 6, "Top15": 8, "Top10": null, "Top5": null, "Top3": null, "Top1": null}, {"Name": "THALER Patrick", "Nation": "ITA", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 3, "Top10": 3, "Top5": null, "Top3": null, "Top1": null}, {"Name": "JAKOBSEN Kristoffer", "Nation": "SWE", "Top100": 6, "Top50": 9, "Top30": 9, "Top15": 13, "Top10": 15, "Top5": null, "Top3": null, "Top1": null}, {"Name": "RASCHNER Dominik", "Nation": "AUT", "Top100": 5, "Top50": 11, "Top30": 13, "Top15": 13, "Top10": null, "Top5": null, "Top3": null, "Top1": null}, {"Name": "RYDING Dave", "Nation": "GBR", "Top100": 1, "Top50": 3, "Top30": 5, "Top15": 6, "Top10": 6, "Top5": null, "Top3": null, "Top1": null}, {"Name": "VALENCIC Mitja", "Nation": "SLO", "Top100": 1, "Top50": 1, "Top30": 1, "Top15": 1, "Top10": null, "Top5": null, "Top3": null, "Top1": null}, {"Name": "KHOROSHILOV Alexander", "Nation": "RUS", "Top100": 1, "Top50": 2, "Top30": 2, "Top15": 4, "Top10": 4, "Top5": 4, "Top3": null, "Top1": null}, {"Name": "STROLZ Johannes", "Nation": "AUT", "Top100": 5, "Top50": 7, "Top30": 11, "Top15": 12, "Top10": null, "Top5": null, "Top3": null, "Top1": null}, {"Name": "CHODOUNSKY David", "Nation": "USA", "Top100": 1, "Top50": 1, "Top30": 2, "Top15": 5, "Top10": null, "Top5": null, "Top3": null, "Top1": null}];
-const tbody=document.querySelector('tbody');
-function draw(f=''){
-tbody.innerHTML='';
-data.filter(r=>r.Name.toLowerCase().includes(f.toLowerCase())).forEach(r=>{
-const tr=document.createElement('tr');
-tr.innerHTML=`<td>${r.Name}</td><td>${r.Nation}</td><td>${r.Top100??'-'}</td><td>${r.Top50??'-'}</td><td>${r.Top30??'-'}</td><td>${r.Top15??'-'}</td><td>${r.Top10??'-'}</td><td>${r.Top5??'-'}</td><td>${r.Top3??'-'}</td><td>${r.Top1??'-'}</td>`;
-tbody.appendChild(tr);
-})
-}
-draw();
-q.oninput=e=>draw(e.target.value);
-</script></body></html>
+const datasets=[
+{
+label:'HIRSCHER Marcel',
+data:[{'x': 1, 'y': 1069.0}, {'x': 2, 'y': 430.0}, {'x': 3, 'y': 86.0}, {'x': 4, 'y': 55.0}, {'x': 5, 'y': 46.0}, {'x': 6, 'y': 36.0}, {'x': 7, 'y': 1.0}, {'x': 8, 'y': 1.0}, {'x': 9, 'y': 1.0}, {'x': 10, 'y': 1.0}, {'x': 11, 'y': 2.0}, {'x': 12, 'y': 2.0}, {'x': 13, 'y': 1.0}, {'x': 14, 'y': 1.0}, {'x': 15, 'y': 3.0}],
+borderColor:'red',
+fill:false
+},{
+label:'KRISTOFFERSEN Henrik',
+data:[{'x': 1, 'y': 1.0}, {'x': 2, 'y': 1.0}, {'x': 3, 'y': 1.0}, {'x': 4, 'y': 1.0}, {'x': 5, 'y': 1.0}, {'x': 6, 'y': 1.0}, {'x': 7, 'y': 1.0}, {'x': 8, 'y': 3.0}, {'x': 9, 'y': 2.0}, {'x': 10, 'y': 2.0}, {'x': 11, 'y': 1.0}, {'x': 12, 'y': 5.0}, {'x': 13, 'y': 3.0}, {'x': 14, 'y': 21.0}, {'x': 15, 'y': 31.0}],
+borderColor:'blue',
+fill:false
+},{
+label:'NOEL Clement',
+data:[{'x': 1, 'y': 1.0}, {'x': 2, 'y': 1.0}, {'x': 3, 'y': 10.0}, {'x': 4, 'y': 1.0}, {'x': 5, 'y': 1.0}, {'x': 6, 'y': 1.0}, {'x': 7, 'y': 1.0}, {'x': 8, 'y': 2.0}, {'x': 9, 'y': 14.0}, {'x': 10, 'y': 61.0}, {'x': 11, 'y': 133.0}, {'x': 12, 'y': 257.0}, {'x': 13, 'y': 634.0}],
+borderColor:'green',
+fill:false
+},{
+label:'PINHEIRO BRAATHEN Lucas',
+data:[{'x': 1, 'y': 7.0}, {'x': 2, 'y': 9.0}, {'x': 3, 'y': 1.0}, {'x': 4, 'y': 1.0}, {'x': 5, 'y': 12.0}, {'x': 6, 'y': 18.0}, {'x': 7, 'y': 11.0}, {'x': 8, 'y': 68.0}, {'x': 9, 'y': 206.0}, {'x': 10, 'y': 570.0}],
+borderColor:'purple',
+fill:false
+},]; new Chart(document.getElementById('c'),{type:'line',data:{datasets},options:{parsing:false,scales:{x:{type:'linear',title:{display:true,text:'Saison carrière'}},y:{reverse:true,type:'logarithmic',min:1,max:1000,title:{display:true,text:'Rang mondial'}}}}});</script></body></html>
