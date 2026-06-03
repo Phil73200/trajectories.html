@@ -1,30 +1,80 @@
-<!DOCTYPE html><html><head>
+<!DOCTYPE html>
+<html>
+<head>
 <meta charset="utf-8">
-<title>Test Trajectoires SL Hommes</title>
+<title>Trajectoires corrigées</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head><body>
-<h2>SL Hommes - Test trajectoires</h2>
-<canvas id="c"></canvas>
+<style>
+body{font-family:Arial;margin:20px}
+</style>
+</head>
+<body>
+<h2>SL Hommes - Carrières reconstruites dans le bon sens</h2>
+<p>Saison 1 = première saison classée, puis progression chronologique.</p>
+<canvas id="chart"></canvas>
+
 <script>
-const datasets=[
+const datasets = [
+
 {
-label:'HIRSCHER Marcel',
-data:[{'x': 1, 'y': 1069.0}, {'x': 2, 'y': 430.0}, {'x': 3, 'y': 86.0}, {'x': 4, 'y': 55.0}, {'x': 5, 'y': 46.0}, {'x': 6, 'y': 36.0}, {'x': 7, 'y': 1.0}, {'x': 8, 'y': 1.0}, {'x': 9, 'y': 1.0}, {'x': 10, 'y': 1.0}, {'x': 11, 'y': 2.0}, {'x': 12, 'y': 2.0}, {'x': 13, 'y': 1.0}, {'x': 14, 'y': 1.0}, {'x': 15, 'y': 3.0}],
-borderColor:'red',
-fill:false
-},{
-label:'KRISTOFFERSEN Henrik',
-data:[{'x': 1, 'y': 1.0}, {'x': 2, 'y': 1.0}, {'x': 3, 'y': 1.0}, {'x': 4, 'y': 1.0}, {'x': 5, 'y': 1.0}, {'x': 6, 'y': 1.0}, {'x': 7, 'y': 1.0}, {'x': 8, 'y': 3.0}, {'x': 9, 'y': 2.0}, {'x': 10, 'y': 2.0}, {'x': 11, 'y': 1.0}, {'x': 12, 'y': 5.0}, {'x': 13, 'y': 3.0}, {'x': 14, 'y': 21.0}, {'x': 15, 'y': 31.0}],
-borderColor:'blue',
-fill:false
-},{
-label:'NOEL Clement',
-data:[{'x': 1, 'y': 1.0}, {'x': 2, 'y': 1.0}, {'x': 3, 'y': 10.0}, {'x': 4, 'y': 1.0}, {'x': 5, 'y': 1.0}, {'x': 6, 'y': 1.0}, {'x': 7, 'y': 1.0}, {'x': 8, 'y': 2.0}, {'x': 9, 'y': 14.0}, {'x': 10, 'y': 61.0}, {'x': 11, 'y': 133.0}, {'x': 12, 'y': 257.0}, {'x': 13, 'y': 634.0}],
-borderColor:'green',
-fill:false
-},{
-label:'PINHEIRO BRAATHEN Lucas',
-data:[{'x': 1, 'y': 7.0}, {'x': 2, 'y': 9.0}, {'x': 3, 'y': 1.0}, {'x': 4, 'y': 1.0}, {'x': 5, 'y': 12.0}, {'x': 6, 'y': 18.0}, {'x': 7, 'y': 11.0}, {'x': 8, 'y': 68.0}, {'x': 9, 'y': 206.0}, {'x': 10, 'y': 570.0}],
-borderColor:'purple',
-fill:false
-},]; new Chart(document.getElementById('c'),{type:'line',data:{datasets},options:{parsing:false,scales:{x:{type:'linear',title:{display:true,text:'Saison carrière'}},y:{reverse:true,type:'logarithmic',min:1,max:1000,title:{display:true,text:'Rang mondial'}}}}});</script></body></html>
+ label:'HIRSCHER Marcel',
+ data:[{'x': 1, 'y': 3.0}, {'x': 2, 'y': 1.0}, {'x': 3, 'y': 1.0}, {'x': 4, 'y': 2.0}, {'x': 5, 'y': 2.0}, {'x': 6, 'y': 1.0}, {'x': 7, 'y': 1.0}, {'x': 8, 'y': 1.0}, {'x': 9, 'y': 1.0}, {'x': 10, 'y': 36.0}, {'x': 11, 'y': 46.0}, {'x': 12, 'y': 55.0}, {'x': 13, 'y': 86.0}, {'x': 14, 'y': 430.0}, {'x': 15, 'y': 1069.0}],
+ borderColor:'red',
+ borderWidth:3,
+ pointRadius:3,
+ tension:0.15
+},
+
+{
+ label:'KRISTOFFERSEN Henrik',
+ data:[{'x': 1, 'y': 31.0}, {'x': 2, 'y': 21.0}, {'x': 3, 'y': 3.0}, {'x': 4, 'y': 5.0}, {'x': 5, 'y': 1.0}, {'x': 6, 'y': 2.0}, {'x': 7, 'y': 2.0}, {'x': 8, 'y': 3.0}, {'x': 9, 'y': 1.0}, {'x': 10, 'y': 1.0}, {'x': 11, 'y': 1.0}, {'x': 12, 'y': 1.0}, {'x': 13, 'y': 1.0}, {'x': 14, 'y': 1.0}, {'x': 15, 'y': 1.0}],
+ borderColor:'blue',
+ borderWidth:3,
+ pointRadius:3,
+ tension:0.15
+},
+
+{
+ label:'NOEL Clement',
+ data:[{'x': 1, 'y': 634.0}, {'x': 2, 'y': 257.0}, {'x': 3, 'y': 133.0}, {'x': 4, 'y': 61.0}, {'x': 5, 'y': 14.0}, {'x': 6, 'y': 2.0}, {'x': 7, 'y': 1.0}, {'x': 8, 'y': 1.0}, {'x': 9, 'y': 1.0}, {'x': 10, 'y': 1.0}, {'x': 11, 'y': 10.0}, {'x': 12, 'y': 1.0}, {'x': 13, 'y': 1.0}],
+ borderColor:'green',
+ borderWidth:3,
+ pointRadius:3,
+ tension:0.15
+},
+
+{
+ label:'PINHEIRO BRAATHEN Lucas',
+ data:[{'x': 1, 'y': 570.0}, {'x': 2, 'y': 206.0}, {'x': 3, 'y': 68.0}, {'x': 4, 'y': 11.0}, {'x': 5, 'y': 18.0}, {'x': 6, 'y': 12.0}, {'x': 7, 'y': 1.0}, {'x': 8, 'y': 1.0}, {'x': 9, 'y': 9.0}, {'x': 10, 'y': 7.0}],
+ borderColor:'purple',
+ borderWidth:3,
+ pointRadius:3,
+ tension:0.15
+},
+
+];
+
+new Chart(document.getElementById('chart'),{
+ type:'line',
+ data:{datasets},
+ options:{
+   parsing:false,
+   plugins:{legend:{display:true}},
+   scales:{
+     x:{
+       type:'linear',
+       title:{display:true,text:'Saison de carrière'}
+     },
+     y:{
+       reverse:true,
+       type:'logarithmic',
+       min:1,
+       max:1000,
+       title:{display:true,text:'Rang mondial'}
+     }
+   }
+ }
+});
+</script>
+</body>
+</html>
