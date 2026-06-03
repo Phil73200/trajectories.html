@@ -1,210 +1,121 @@
-function buildChart(){
-
-    document.getElementById('nbAthletes').textContent = rows.length;
-
-    let times = rows
-        .map(r => Number(r.SeasonsToTopRank))
-        .filter(v => Number.isFinite(v) && v > 0);
-
-    document.getElementById('avgTime').textContent =
-        times.length
-            ? (times.reduce((a,b)=>a+b,0) / times.length).toFixed(1)
-            : 0;
-
-    document.getElementById('bestTime').textContent =
-        times.length
-            ? Math.min(...times)
-            : 0;
-
-    document.getElementById('world1').textContent =
-        rows.filter(r => Number(r.BestRankCareer) === 1).length;
-
-    const datasets = [];
-
-    /* ===============================
-       COURBES INDIVIDUELLES
-       =============================== */
-
-    if(mode !== 'AVG'){
-
-        rows.forEach(r => {
-
-            const rankCols = Object.keys(r)
-                .filter(k => k.startsWith('Rank'))
-                .sort((a,b)=>
-                    Number(a.replace('Rank','')) -
-                    Number(b.replace('Rank',''))
-                );
-
-            const points = [];
-
-            let seasonIndex = 1;
-
-            rankCols.forEach(col => {
-
-                const rank = Number(r[col]);
-
-                if(Number.isFinite(rank) && rank > 0){
-
-                    points.push({
-                        x: seasonIndex,
-                        y: rank
-                    });
-
-                    seasonIndex++;
-                }
-
-            });
-
-            if(points.length >= 2){
-
-                datasets.push({
-                    label: r.Name,
-                    data: points,
-                    borderColor: 'rgba(120,120,120,0.35)',
-                    borderWidth: 1.2,
-                    pointRadius: 0,
-                    tension: 0.15
-                });
-
-            }
-
-        });
-
-    }
-
-    /* ===============================
-       COURBE MOYENNE
-       =============================== */
-
-    if(mode !== 'ALL'){
-
-        const buckets = {};
-
-        rows.forEach(r => {
-
-            const rankCols = Object.keys(r)
-                .filter(k => k.startsWith('Rank'))
-                .sort((a,b)=>
-                    Number(a.replace('Rank','')) -
-                    Number(b.replace('Rank',''))
-                );
-
-            let seasonIndex = 1;
-
-            rankCols.forEach(col => {
-
-                const rank = Number(r[col]);
-
-                if(Number.isFinite(rank) && rank > 0){
-
-                    if(!buckets[seasonIndex]){
-                        buckets[seasonIndex] = [];
-                    }
-
-                    buckets[seasonIndex].push(rank);
-
-                    seasonIndex++;
-                }
-
-            });
-
-        });
-
-        const avgPoints = [];
-
-        Object.keys(buckets)
-            .sort((a,b)=>a-b)
-            .forEach(k => {
-
-                const arr = buckets[k];
-
-                const avg =
-                    arr.reduce((a,b)=>a+b,0) /
-                    arr.length;
-
-                avgPoints.push({
-                    x: Number(k),
-                    y: avg
-                });
-
-            });
-
-        let avgColor = '#1565c0';
-
-        if(discipline === 'GS') avgColor = '#c2185b';
-        if(discipline === 'SG') avgColor = '#2e7d32';
-        if(discipline === 'DH') avgColor = '#f57c00';
-
-        datasets.push({
-            label: 'Moyenne',
-            data: avgPoints,
-            borderColor: avgColor,
-            borderWidth: 5,
-            pointRadius: 3,
-            tension: 0.25
-        });
-
-    }
-
-    if(chart){
-        chart.destroy();
-    }
-
-    chart = new Chart(
-        document.getElementById('trajectoryChart'),
-        {
-            type: 'line',
-
-            data: {
-                datasets: datasets
-            },
-
-            options: {
-
-                responsive: true,
-
-                parsing: false,
-
-                interaction:{
-                    mode:'nearest',
-                    intersect:false
-                },
-
-                plugins:{
-                    legend:{
-                        display:false
-                    }
-                },
-
-                scales:{
-
-                    x:{
-                        type:'linear',
-                        title:{
-                            display:true,
-                            text:'Saison de carrière'
-                        },
-                        ticks:{
-                            stepSize:1
-                        }
-                    },
-
-                    y:{
-                        reverse:true,
-                        type:'logarithmic',
-                        min:1,
-                        max:1000,
-                        title:{
-                            display:true,
-                            text:'Rang mondial'
-                        }
-                    }
-
-                }
-
-            }
-        }
-    );
-
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Road To Top 15 - V4</title>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+--sl:#90caf9; --gs:#f8bbd0; --sg:#c8e6c9; --dh:#fff59d;
+--male:#1565c0; --female:#c2185b;
 }
+body{font-family:Arial;margin:0;background:#f5f5f5}
+header{background:#1565c0;color:#fff;padding:12px;text-align:center}
+.controls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px}
+button{padding:8px 14px;border-radius:8px;border:1px solid #ccc;font-weight:bold;cursor:pointer}
+.active{border:3px solid #000}
+#SL{background:var(--sl)} #GS{background:var(--gs)} #SG{background:var(--sg)} #DH{background:var(--dh)}
+#M{background:#fff;color:var(--male)} #W{background:#fff;color:var(--female)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;padding:10px}
+.card,.panel{background:#fff;border-radius:10px;padding:12px}
+.big{font-size:28px;font-weight:bold}
+</style>
+</head>
+<body>
+<header><h1>Road To Top 15 - V4</h1></header>
+
+<div class="controls">
+<button id="SL">SL</button><button id="GS">GS</button><button id="SG">SG</button><button id="DH">DH</button>
+<button id="M">Hommes</button><button id="W">Femmes</button>
+<button id="ALL">Courbes</button><button id="AVG">Moyenne</button><button id="BOTH">Les deux</button>
+</div>
+
+<div class="stats">
+<div class="card"><div class="big" id="nbAthletes">0</div>Athlètes</div>
+<div class="card"><div class="big" id="avgTime">0</div>Moyenne saisons</div>
+<div class="card"><div class="big" id="bestTime">0</div>Plus rapide</div>
+<div class="card"><div class="big" id="world1">0</div>N°1 mondiaux</div>
+</div>
+
+<div class="panel"><canvas id="trajectoryChart"></canvas></div>
+
+<script>
+let discipline='SL', gender='M', mode='BOTH';
+let rows=[], chart=null;
+
+function csvFile(){ return `Data/${discipline}_${gender}.csv`; }
+
+function updateButtons(){
+['SL','GS','SG','DH','M','W','ALL','AVG','BOTH'].forEach(id=>document.getElementById(id).classList.remove('active'));
+document.getElementById(discipline).classList.add('active');
+document.getElementById(gender).classList.add('active');
+document.getElementById(mode).classList.add('active');
+}
+
+function loadData(){
+Papa.parse(csvFile(),{
+download:true,header:true,dynamicTyping:true,skipEmptyLines:true,
+complete:(r)=>{ rows=r.data.filter(x=>x.Name); buildChart(); }
+});
+}
+
+function buildChart(){
+const datasets=[];
+document.getElementById('nbAthletes').textContent=rows.length;
+
+let times=rows.map(r=>+r.SeasonsToTopRank).filter(x=>x>0);
+document.getElementById('avgTime').textContent=times.length?(times.reduce((a,b)=>a+b,0)/times.length).toFixed(1):0;
+document.getElementById('bestTime').textContent=times.length?Math.min(...times):0;
+document.getElementById('world1').textContent=rows.filter(r=>+r.BestRankCareer===1).length;
+
+if(mode!=='AVG'){
+rows.forEach(r=>{
+const cols=Object.keys(r).filter(k=>k.startsWith('Rank')).sort((a,b)=>+a.replace('Rank','')-+b.replace('Rank',''));
+const pts=[]; let i=1;
+cols.forEach(c=>{ let v=+r[c]; if(v>0){ pts.push({x:i,y:v}); i++; }});
+if(pts.length>1){
+datasets.push({data:pts,borderColor:'rgba(120,120,120,.35)',borderWidth:1,pointRadius:0,tension:.15});
+}
+});
+}
+
+if(mode!=='ALL'){
+const buckets={};
+rows.forEach(r=>{
+const cols=Object.keys(r).filter(k=>k.startsWith('Rank')).sort((a,b)=>+a.replace('Rank','')-+b.replace('Rank',''));
+let i=1;
+cols.forEach(c=>{ let v=+r[c]; if(v>0){ (buckets[i]??=[]).push(v); i++; }});
+});
+const avg=[];
+Object.keys(buckets).sort((a,b)=>a-b).forEach(k=>{
+avg.push({x:+k,y:buckets[k].reduce((a,b)=>a+b,0)/buckets[k].length});
+});
+const colors={SL:'#1565c0',GS:'#c2185b',SG:'#2e7d32',DH:'#f57c00'};
+datasets.push({data:avg,borderColor:colors[discipline],borderWidth:5,pointRadius:2,tension:.25});
+}
+
+if(chart) chart.destroy();
+chart=new Chart(document.getElementById('trajectoryChart'),{
+type:'line',
+data:{datasets},
+options:{
+parsing:false,
+plugins:{legend:{display:false}},
+scales:{
+x:{type:'linear',title:{display:true,text:'Saison de carrière'}},
+y:{type:'logarithmic',reverse:true,min:1,max:1000,title:{display:true,text:'Rang mondial'}}
+}
+}
+});
+}
+
+['SL','GS','SG','DH'].forEach(x=>document.getElementById(x).onclick=()=>{discipline=x;updateButtons();loadData();});
+['M','W'].forEach(x=>document.getElementById(x).onclick=()=>{gender=x;updateButtons();loadData();});
+['ALL','AVG','BOTH'].forEach(x=>document.getElementById(x).onclick=()=>{mode=x;updateButtons();buildChart();});
+
+updateButtons(); loadData();
+</script>
+</body>
+</html>
