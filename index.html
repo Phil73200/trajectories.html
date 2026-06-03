@@ -1,1 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FIS Career Trajectories</title>
 
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+font-family:Arial,sans-serif;
+margin:0;
+background:#f5f5f5;
+}
+
+header{
+background:#1565c0;
+color:white;
+padding:12px;
+text-align:center;
+}
+
+.controls{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+justify-content:center;
+padding:10px;
+}
+
+button{
+padding:8px 14px;
+border-radius:8px;
+border:1px solid #ccc;
+cursor:pointer;
+font-weight:bold;
+}
+
+.active{
+border:3px solid black;
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:10px;
+padding:10px;
+}
+
+.card{
+background:white;
+border-radius:10px;
+padding:12px;
+}
+
+.big{
+font-size:30px;
+font-weight:bold;
+}
+
+.panel{
+background:white;
+margin:10px;
+padding:15px;
+border-radius:10px;
+}
+
+canvas{
+max-height:700px;
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>FIS Career Trajectories</h1>
+</header>
+
+<div class="controls">
+
+<button id="SL">SL</button>
+<button id="GS">GS</button>
+<button id="SG">SG</button>
+<button id="DH">DH</button>
+
+<button id="M">Hommes</button>
+<button id="W">Femmes</button>
+
+<button id="ALL">Toutes</button>
+<button id="AVG">Moyenne</button>
+<button id="BOTH">Les deux</button>
+
+</div>
+
+<div class="stats">
+<div class="card"><div class="big" id="nbAthletes">0</div>Athlètes</div>
+<div class="card"><div class="big" id="avgTime">0</div>Moyenne saisons</div>
+<div class="card"><div class="big" id="bestTime">0</div>Plus rapide</div>
+<div class="card"><div class="big" id="world1">0</div>N°1 mondiaux</div>
+</div>
+
+<div class="panel">
+<canvas id="trajectoryChart"></canvas>
+</div>
+
+<script>
+
+let discipline='SL';
+let gender='M';
+let mode='BOTH';
+
+let chart=null;
+let rows=[];
+
+function csvFile(){
+return `Data/${discipline}_${gender}.csv`;
+}
+
+function updateButtons(){
+
+['SL','GS','SG','DH'].forEach(x=>{
+document.getElementById(x).classList.remove('active');
+});
+
+['M','W'].forEach(x=>{
+document.getElementById(x).classList.remove('active');
+});
+
+['ALL','AVG','BOTH'].forEach(x=>{
+document.getElementById(x).classList.remove('active');
+});
+
+document.getElementById(discipline).classList.add('active');
+document.getElementById(gender).classList.add('active');
+document.getElementById(mode).classList.add('active');
+}
+
+function loadData(){
+
+Papa.parse(csvFile(),{
+
+download:true,
+header:true,
+dynamicTyping:true,
+skipEmptyLines:true,
+
+complete:function(result){
+
+rows=result.data.filter(r=>r.Name);
+
+buildChart();
+
+}
+
+});
+
+}
+
+function buildChart(){
+
+document.getElementById('nbAthletes').textContent=rows.length;
+
+let times=rows.map(r=>+r.SeasonsToTopRank).filter(x=>x>0);
+
+document.getElementById('avgTime').textContent=
+(times.reduce((a,b)=>a+b,0)/times.length).toFixed(1);
+
+document.getElementById('bestTime').textContent=
+Math.min(...times);
+
+document.getElementById('world1').textContent=
+rows.filter(r=>+r.BestRankCareer===1).length;
+
+const datasets=[];
+
+rows.forEach(r=>{
+
+const years=[];
+const ranks=[];
+
+Object.keys(r)
+.filter(k=>k.startsWith('Rank'))
+.sort()
+.forEach(k=>{
+
+let v=Number(r[k]);
+
+if(Number.isFinite(v) && v>0){
+
+years.push(years.length+1);
+ranks.push(v);
+
+}
+
+});
+
+if(ranks.length){
+
+if(mode!=='AVG'){
+
+datasets.push({
+
+label:r.Name,
+data:years.map((x,i)=>({x:x,y:ranks[i]})),
+borderColor:'rgba(150,150,150,.25)',
+borderWidth:1,
+pointRadius:0
+
+});
+
+}
+
+}
+
+});
+
+if(mode!=='ALL'){
+
+let avg={};
+
+rows.forEach(r=>{
+
+let idx=1;
+
+Object.keys(r)
+.filter(k=>k.startsWith('Rank'))
+.sort()
+.forEach(k=>{
+
+let v=Number(r[k]);
+
+if(Number.isFinite(v) && v>0){
+
+if(!avg[idx]) avg[idx]=[];
+
+avg[idx].push(v);
+
+idx++;
+
+}
+
+});
+
+});
+
+const avgData=[];
+
+Object.keys(avg).forEach(k=>{
+
+let m=avg[k].reduce((a,b)=>a+b,0)/avg[k].length;
+
+avgData.push({
+x:+k,
+y:m
+});
+
+});
+
+datasets.push({
+
+label:'Moyenne',
+data:avgData,
+borderColor:'red',
+borderWidth:5,
+pointRadius:2
+
+});
+
+}
+
+if(chart) chart.destroy();
+
+chart=new Chart(
+document.getElementById('trajectoryChart'),
+{
+type:'line',
+data:{datasets},
+options:{
+parsing:false,
+responsive:true,
+plugins:{
+legend:{display:false}
+},
+scales:{
+x:{
+title:{
+display:true,
+text:'Saison de carrière'
+}
+},
+y:{
+reverse:true,
+type:'logarithmic',
+title:{
+display:true,
+text:'Rang mondial'
+}
+}
+}
+}
+}
+);
+
+}
+
+['SL','GS','SG','DH'].forEach(x=>{
+document.getElementById(x).onclick=()=>{
+discipline=x;
+updateButtons();
+loadData();
+};
+});
+
+['M','W'].forEach(x=>{
+document.getElementById(x).onclick=()=>{
+gender=x;
+updateButtons();
+loadData();
+};
+});
+
+['ALL','AVG','BOTH'].forEach(x=>{
+document.getElementById(x).onclick=()=>{
+mode=x;
+updateButtons();
+buildChart();
+};
+});
+
+updateButtons();
+loadData();
+
+</script>
+
+</body>
+</html>
